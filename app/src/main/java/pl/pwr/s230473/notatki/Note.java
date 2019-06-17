@@ -5,6 +5,7 @@ public class Note {
     private String note;
     private String timestamp;
 
+    public Note() { }
     public Note(long id, String note, String timestamp) {
         this.id = id;
         this.note = note;

@@ -31,4 +31,75 @@
         android:textColor="#000000"
         android:textSize="20sp" />
 
+    <CheckBox
+        android:id="@+id/powiadomienie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:checked="true"
+        android:buttonTint="@color/colorAccent"
+        android:text="Powiadomienie" />
+
+    <LinearLayout
+        android:id="@+id/date_linear"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/in_date"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:hint="dd/mm/yyyy"
+            android:inputType = "date"
+            android:maxLength="10"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:textColorHint="#000000" />
+
+        <Button
+            android:id="@+id/btn_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/in_date"
+            android:layout_toEndOf="@+id/in_date"
+            android:layout_toRightOf="@+id/in_date"
+            android:text="Data" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/time_linear"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/in_time"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/in_date"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:hint="hh:mm"
+            android:gravity="center"
+            android:inputType = "time"
+            android:maxLength="5"
+            android:textColor="#000000"
+            android:textColorHint="#000000" />
+
+        <Button
+            android:id="@+id/btn_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_date"
+            android:layout_alignStart="@+id/btn_date"
+            android:layout_alignLeft="@+id/btn_date"
+            android:text="Godzina" />
+
+    </LinearLayout>
+
 </LinearLayout>

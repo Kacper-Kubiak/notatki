@@ -1,6 +1,12 @@
 package pl.pwr.s230473.notatki;
 
+import android.util.Log;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 public class Note {
+    private static final String DEBUG = "DEBUG";
     private long id;
     private String note;
     private String timestamp;
@@ -46,10 +52,14 @@ public class Note {
 
 
     public String getDate() {
-        return "01/01/2001";
+        Log.d(DEBUG,timeAlert.substring(0,10));
+        return timeAlert.substring(0,10);
+        //return "01/01/2001";
     }
 
     public String getTime() {
-        return "11:30";
+        Log.d(DEBUG,timeAlert.substring(11,16));
+        return timeAlert.substring(11,16);
+        //return "11:30";HH:mm
     }
 }

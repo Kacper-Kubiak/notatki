@@ -11,8 +11,10 @@ import java.util.List;
 
 public class NoteSQL extends SQLiteOpenHelper {
 
+    //Aktualna wersja bazy danych.
     private static final int DATABASE_VERSION = 1;
 
+    //informacje o nazwach kolumn dla SQL
     private static final String DATABASE_NAME = "notes_db";
     private static final String TABLE_NAME = "notes";
     private static final String COLUMN_ID = "id";
@@ -21,11 +23,12 @@ public class NoteSQL extends SQLiteOpenHelper {
     private static final String COLUMN_ALERT = "alert";
     private static final String COLUMN_TIMEALERT = "timealert";
 
-
+    //Konstruktor
     public NoteSQL(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    //Tworzenie tablicy dla SQLite
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + TABLE_NAME + "("
@@ -37,6 +40,12 @@ public class NoteSQL extends SQLiteOpenHelper {
                 + ")");
     }
 
+    /*
+     * Aktualizacja bazy danych
+     * Wykonuje się tylko gdy zmieniła się wersja bazy danych
+     * i należy dokonać aktualizacji struktury
+     */
+    // w
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
@@ -44,15 +53,19 @@ public class NoteSQL extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    // Usunięcie aktualnej bazy danych (o ile istnieje)
     public void clearDataBase(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
     }
 
+    //Funkcja do 'wyzerowania' numeru wersji.
+    //Wykonuje się tylko w chwili gdy mamy noszą wersje bazy niż jest na SQLite
     /*@Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }*/
 
+    // Dodanie wpisu do bazy danych
     public long insertNote(String note, boolean alert, String timeStamp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -67,6 +80,7 @@ public class NoteSQL extends SQLiteOpenHelper {
         return id;
     }
 
+    //Pobranie jednej notatki z bazy danych
     public Note getNote(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -88,6 +102,7 @@ public class NoteSQL extends SQLiteOpenHelper {
         return note;
     }
 
+    //Pobranie wszystkich notatek z bazy danych
     public List<Note> getAllNotes() {
         List<Note> notes = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_NAME + " ORDER BY " +
@@ -110,6 +125,7 @@ public class NoteSQL extends SQLiteOpenHelper {
         return notes;
     }
 
+    //Policzenie ile mamy notatek w bazie danych
     public int getNotesCount() {
         String countQuery = "SELECT  * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -119,7 +135,7 @@ public class NoteSQL extends SQLiteOpenHelper {
         return count;
     }
 
-
+    //Aktualizacja jednej konkretnej notatki
     public int updateNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -134,6 +150,7 @@ public class NoteSQL extends SQLiteOpenHelper {
                 new String[]{String.valueOf(note.getId())});
     }
 
+    //Usunięcie notatki z bazy danych
     public void deleteNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_ID + " = ?",

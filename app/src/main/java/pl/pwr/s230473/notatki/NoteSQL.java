@@ -18,6 +18,8 @@ public class NoteSQL extends SQLiteOpenHelper {
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_NOTE = "note";
     private static final String COLUMN_TIMESTAMP = "timestamp";
+    private static final String COLUMN_ALERT = "alert";
+    private static final String COLUMN_TIMEALERT = "timealert";
 
 
     public NoteSQL(Context context) {
@@ -26,24 +28,40 @@ public class NoteSQL extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
         db.execSQL("CREATE TABLE " + TABLE_NAME + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_NOTE + " TEXT,"
-                + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP"
+                + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + COLUMN_ALERT + " BIT DEFAULT '0',"
+                + COLUMN_TIMEALERT + " DATETIME DEFAULT CURRENT_TIMESTAMP"
                 + ")");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        //db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        clearDataBase(db);
         onCreate(db);
     }
 
-    public long insertNote(String note) {
+    public void clearDataBase(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+    }
+
+    /*@Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
+    }*/
+
+    public long insertNote(String note, boolean alert, String timeStamp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE, note);
+        if(alert)
+        {
+            values.put(COLUMN_ALERT, alert?1:0);
+            values.put(COLUMN_TIMEALERT, timeStamp);
+        }
         long id = db.insert(TABLE_NAME, null, values);
         db.close();
         return id;
@@ -53,7 +71,7 @@ public class NoteSQL extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_NAME,
-                new String[]{COLUMN_ID, COLUMN_NOTE, COLUMN_TIMESTAMP},
+                new String[]{COLUMN_ID, COLUMN_NOTE, COLUMN_TIMESTAMP, COLUMN_ALERT, COLUMN_TIMEALERT},
                 COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -63,7 +81,9 @@ public class NoteSQL extends SQLiteOpenHelper {
         Note note = new Note(
                 cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
                 cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
-                cursor.getString(cursor.getColumnIndex(COLUMN_TIMESTAMP)));
+                cursor.getString(cursor.getColumnIndex(COLUMN_TIMESTAMP)),
+                cursor.getInt(cursor.getColumnIndex(COLUMN_ALERT))>0?true:false,
+                cursor.getString(cursor.getColumnIndex(COLUMN_TIMEALERT)));
         cursor.close();
         return note;
     }
@@ -81,6 +101,8 @@ public class NoteSQL extends SQLiteOpenHelper {
                 note.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
                 note.setNote(cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)));
                 note.setTimestamp(cursor.getString(cursor.getColumnIndex(COLUMN_TIMESTAMP)));
+                note.setAlert(cursor.getInt(cursor.getColumnIndex(COLUMN_ALERT))>0?true:false);
+                note.setTimeAlert(cursor.getString(cursor.getColumnIndex(COLUMN_TIMEALERT)));
                 notes.add(note);
             } while (cursor.moveToNext());
         }
@@ -97,11 +119,17 @@ public class NoteSQL extends SQLiteOpenHelper {
         return count;
     }
 
+
     public int updateNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOTE, note.getNote());
+        if(note.getAlert())
+        {
+            values.put(COLUMN_ALERT, note.getAlert()?1:0);
+            values.put(COLUMN_TIMEALERT, note.getTimeAlert());
+        }
         return db.update(TABLE_NAME, values, COLUMN_ID + " = ?",
                 new String[]{String.valueOf(note.getId())});
     }

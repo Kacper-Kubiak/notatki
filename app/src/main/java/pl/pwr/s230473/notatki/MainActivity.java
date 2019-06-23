@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -40,6 +41,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String DEBUG = "DEBUG";
     ListView listView;
     //String[] TIMESTAMP_TAB = {"1","2","3","4","5","6","7","8","9","10"};
     //String[] NOTES_TAB = {"A","B","C","D","E","F","G","H","I","J"};
@@ -119,10 +121,11 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilderUserInput.setView(view);
 
         final EditText inputNote = view.findViewById(R.id.note);
-        final Button btnDatePicker= view.findViewById(R.id.btn_date);
-        final Button btnTimePicker= view.findViewById(R.id.btn_time);
-        final EditText txtDate= view.findViewById(R.id.in_date);
-        final EditText txtTime= view.findViewById(R.id.in_time);
+        final Button btnDatePicker = view.findViewById(R.id.btn_date);
+        final Button btnTimePicker = view.findViewById(R.id.btn_time);
+        final EditText txtDate = view.findViewById(R.id.in_date);
+        final EditText txtTime = view.findViewById(R.id.in_time);
+        final CheckBox checkAlert = view.findViewById(R.id.powiadomienie);
 
         TextView dialogTitle = view.findViewById(R.id.dialog_title);
         dialogTitle.setText(!shouldUpdate ? "Nowa notatka" : "Edytuj notatke");
@@ -163,8 +166,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (shouldUpdate && note != null) {
-            inputNote.setText(note.getNote());
+        if (shouldUpdate) {
+            if(note != null) inputNote.setText(note.getNote());
+            checkAlert.setChecked(note.getAlert());
+            txtDate.setText(note.getDate());
+            txtTime.setText(note.getTime());
         }
         alertDialogBuilderUserInput
                 .setCancelable(false)
@@ -197,18 +203,20 @@ public class MainActivity extends AppCompatActivity {
                 // check if user updating note
                 if (shouldUpdate && note != null) {
                     // update note by it's id
-                    updateNote(inputNote.getText().toString(), position);
+                    updateNote(inputNote.getText().toString(), position, checkAlert.isChecked(), txtDate.getText().toString() + " " + txtTime.getText().toString());
                 } else {
                     // create new note
-                    createNote(inputNote.getText().toString());
+                    Log.d(DEBUG, "Data: " + txtDate.getText().toString() + " Czas: " + txtTime.getText().toString() );
+                    createNote(inputNote.getText().toString(), checkAlert.isChecked(), txtDate.getText().toString() + " " + txtTime.getText().toString());
                 }
             }
         });
     }
 
-    private void updateNote(String note, int position) {
+    private void updateNote(String note, int position, boolean alert, String alertTime) {
         Note nn = notesList.get(position);
         nn.setNote(note);
+        nn.setAlert(alert);
         noteSQL.updateNote(nn);
     }
 
@@ -220,7 +228,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNote(String note) {
-        long id = noteSQL.insertNote(note);
+        createNote(note,false, "");
+    }
+
+    private void createNote(String note, boolean alert, String alertTime) {
+        //long id = noteSQL.insertNote(note);
+        long id = noteSQL.insertNote(note, alert, alertTime);
         Note nn = noteSQL.getNote(id);
 
         if (nn != null) {
